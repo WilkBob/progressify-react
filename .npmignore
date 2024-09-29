@@ -1,0 +1,7 @@
+src/
+tests/
+.eslintrc.js
+rollup.config.js
+tsconfig.json
+jest.config.js
+.gitignore
