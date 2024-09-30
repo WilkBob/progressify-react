@@ -72,11 +72,6 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   }, [lazy, isIntersecting, loadImage]);
 
   useEffect(() => {
-    isLoaded && setIsLoaded(false);
-    loadImage();
-  }, [src, loadImage]);
-
-  useEffect(() => {
     if (lazy && containerRef.current) {
       const observer = new IntersectionObserver(
         ([entry]) => {
