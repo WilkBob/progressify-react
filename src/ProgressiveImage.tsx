@@ -10,8 +10,6 @@ interface ProgressiveImageProps {
   lazy?: boolean;
 }
 
-const CACHE_KEY = "progressiveImageCache";
-
 export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   src,
   className = "",
@@ -29,39 +27,12 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  const getCachedImage = useCallback((key: string): string | null => {
-    const cache = localStorage.getItem(CACHE_KEY);
-    if (cache) {
-      const parsedCache = JSON.parse(cache);
-      return parsedCache[key] || null;
-    }
-    return null;
-  }, []);
-
-  const setCachedImage = useCallback((key: string, value: string) => {
-    const cache = localStorage.getItem(CACHE_KEY);
-    const parsedCache = cache ? JSON.parse(cache) : {};
-    parsedCache[key] = value;
-    localStorage.setItem(CACHE_KEY, JSON.stringify(parsedCache));
-  }, []);
-
   const loadImage = useCallback(() => {
     const imageData = imageMap.get(src);
 
     if (!imageData) {
       console.error(`Image data not found for src: ${src}`);
       setLoadingState("error");
-      return;
-    }
-
-    // Check cache first
-    const cachedImage = getCachedImage(src);
-    if (cachedImage) {
-      if (imageRef.current) {
-        imageRef.current.src = cachedImage;
-        imageRef.current.alt = alt;
-        setLoadingState("loaded");
-      }
       return;
     }
 
@@ -97,7 +68,6 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
         imageRef.current.src = fullImage.src;
         imageRef.current.alt = alt;
         setLoadingState("loaded");
-        setCachedImage(src, fullImage.src);
       }
     };
 
@@ -105,7 +75,7 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
       setLoadingState("error");
       console.error("Error loading image:", error);
     };
-  }, [src, imageMap, thumb, alt, getCachedImage, setCachedImage]);
+  }, [src, imageMap, thumb, alt]);
 
   useEffect(() => {
     if (!lazy || isIntersecting) {
