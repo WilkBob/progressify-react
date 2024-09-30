@@ -1,6 +1,6 @@
 {
   "name": "progressify-react",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "A React library for progressive images using Sizeable",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
