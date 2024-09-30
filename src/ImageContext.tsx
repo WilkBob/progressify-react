@@ -1,5 +1,20 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { ImageContextValue, ImageData, JSONImage } from "./types";
+import { JSONImage } from "./types";
+
+export interface ImageData {
+  placeholder: string;
+  original: string;
+  thumbnail: string;
+  dimensions: [number, number];
+  aspectRatio: number;
+  thumbnailSize: number;
+}
+
+interface ImageContextValue {
+  imageMap: Map<string, ImageData>;
+  loading: boolean;
+  error: Error | null;
+}
 
 const ImageContext = createContext<ImageContextValue | undefined>(undefined);
 
@@ -15,6 +30,7 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({
   const [state, setState] = useState<ImageContextValue>({
     imageMap: new Map(),
     loading: true,
+    error: null,
   });
 
   useEffect(() => {
@@ -38,10 +54,14 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({
             },
           ])
         );
-        setState({ imageMap, loading: false });
+        setState({ imageMap, loading: false, error: null });
       } catch (error) {
         console.error("Error fetching image index:", error);
-        setState((prev) => ({ ...prev, loading: false }));
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error as Error,
+        }));
       }
     };
 
