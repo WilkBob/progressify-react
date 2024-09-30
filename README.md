@@ -1,6 +1,6 @@
 # Progressify React
 
-Progressify React is a powerful React library for implementing progressive image loading using Sizeable. It provides easy-to-use components and hooks to enhance the image loading experience in your React applications.
+Progressify React is a powerful React library for implementing progressive image loading using Sizeable. It provides easy-to-use components to enhance the image loading experience in your React applications.
 
 ## Features
 
@@ -25,6 +25,8 @@ yarn add progressify-react
 ## Process Your Images
 
 Use [Sizeable](https://web-size.web.app/progressify) To generate your images folder and index.json, which are _REQUIRED_ to use progressify-react
+
+Copy the contents of the generated zip to your apps public folder
 
 ### ImageProvider
 
@@ -81,37 +83,7 @@ The `ProgressiveImage` component accepts the following props:
 | `thumb`                | boolean | `false`    | Whether to use the thumbnail version of the image                        |
 | `lazy`                 | boolean | `false`    | Whether to enable lazy loading for the image                             |
 
-## Advanced Usage
-
-### Custom Placeholder Styles
-
-You can customize the appearance of the placeholder by using the `placeholderClassName` prop:
-
-```jsx
-<ProgressiveImage
-  src="hero-image"
-  placeholderClassName="blur-xl bg-gray-200"
-  className="w-full h-auto"
-  alt="Hero image"
-  lazy
-/>
-```
-
-### Combining with Other Libraries
-
-Progressify React works well with other popular React libraries. For example, you can use it with Tailwind CSS for responsive images:
-
-```jsx
-<ProgressiveImage
-  src="profile-pic"
-  className="w-24 h-24 rounded-full md:w-32 md:h-32"
-  placeholderClassName="blur-md"
-  alt="User profile picture"
-  thumb
-/>
-```
-
-## Best Practices
+## Usage Tips
 
 - Use the `thumb` prop for smaller images or in list views to improve initial load times.
 - Enable `lazy` loading for images that are not immediately visible on page load.
