@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useImageContext } from "./ImageContext";
+import PropTypes from "prop-types";
 
 interface ProgressiveImageProps {
   src: string;
@@ -131,4 +132,13 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
       )}
     </div>
   );
+};
+
+ProgressiveImage.propTypes = {
+  src: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  placeholderClassName: PropTypes.string,
+  alt: PropTypes.string,
+  thumb: PropTypes.bool,
+  lazy: PropTypes.bool,
 };
