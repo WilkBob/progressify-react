@@ -22,43 +22,34 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   const { imageMap } = useImageContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isIntersecting, setIsIntersecting] = useState(!lazy);
-  const [error, setError] = useState<string | null>(null);
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const loadImage = useCallback(() => {
     const imageData = imageMap.get(src);
 
     if (!imageData) {
-      setError(`Image data not found for src: ${src}`);
+      console.error(`Image with src ${src} not found in imageMap`);
       setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
-    setError(null);
 
     // Set placeholder using canvas
-    if (imageData.placeholder && imageData.dimensions && canvasRef.current) {
-      const context = canvasRef.current.getContext("2d");
+    if (imageData.placeholder && imageData.dimensions && imageRef.current) {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
       const img = new Image();
       img.src = imageData.placeholder;
 
       img.onload = () => {
-        if (context && canvasRef.current) {
-          canvasRef.current.width = imageData.dimensions[0];
-          canvasRef.current.height = imageData.dimensions[1];
-          context.drawImage(
-            img,
-            0,
-            0,
-            canvasRef.current.width,
-            canvasRef.current.height
-          );
+        if (context) {
+          canvas.width = imageData.dimensions[0];
+          canvas.height = imageData.dimensions[1];
+          context.drawImage(img, 0, 0, canvas.width, canvas.height);
           if (imageRef.current) {
-            imageRef.current.src = canvasRef.current.toDataURL();
+            imageRef.current.src = canvas.toDataURL();
           }
         }
       };
@@ -77,7 +68,6 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
     };
 
     fullImage.onerror = () => {
-      setError("Failed to load image");
       setIsLoading(false);
     };
   }, [src, imageMap, thumb, alt]);
@@ -89,7 +79,7 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   }, [lazy, isIntersecting, loadImage, src]); // Added src to dependencies
 
   useEffect(() => {
-    if (lazy && containerRef.current) {
+    if (lazy && imageRef.current) {
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
@@ -100,7 +90,7 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
         { rootMargin: "200px" }
       );
 
-      observer.observe(containerRef.current);
+      observer.observe(imageRef.current);
 
       return () => {
         observer.disconnect();
@@ -109,20 +99,13 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   }, [lazy]);
 
   return (
-    <div ref={containerRef}>
-      {(isIntersecting || !lazy) && (
-        <>
-          <img
-            ref={imageRef}
-            alt={alt}
-            className={`${className} ${isLoading ? placeholderClassName : ""}`}
-          />
-          <canvas ref={canvasRef} style={{ display: "none" }} />
-          {isLoading && <div>Loading...</div>}
-          {error && <div>Error: {error}</div>}
-        </>
-      )}
-    </div>
+    <>
+      <img
+        ref={imageRef}
+        alt={alt}
+        className={`${className} ${isLoading ? placeholderClassName : ""}`}
+      />
+    </>
   );
 };
 
