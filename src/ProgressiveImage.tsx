@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useImageContext } from "./ImageContext";
-
+import PropTypes from "prop-types";
 interface ProgressiveImageProps {
   src: string;
   className?: string;
@@ -19,8 +19,9 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   lazy = false,
 }) => {
   const { imageMap } = useImageContext();
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isIntersecting, setIsIntersecting] = useState(!lazy);
+  const [error, setError] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -29,30 +30,19 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
     const imageData = imageMap.get(src);
 
     if (!imageData) {
-      console.error(`Image data not found for src: ${src}`);
+      setError(`Image data not found for src: ${src}`);
       return;
     }
 
-    if (imageData.placeholder && imageData.dimensions) {
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-      const img = new Image();
-      img.src = imageData.placeholder;
+    setIsLoading(true);
+    setError(null);
 
-      img.onload = () => {
-        if (context) {
-          canvas.width = imageData.dimensions[0];
-          canvas.height = imageData.dimensions[1];
-          context.drawImage(img, 0, 0, canvas.width, canvas.height);
-          if (imageRef.current) {
-            imageRef.current.src = canvas.toDataURL();
-          }
-        }
-      };
-    } else if (imageRef.current) {
-      imageRef.current.src = imageData.placeholder;
+    // Set placeholder
+    if (imageRef.current) {
+      imageRef.current.src = imageData.placeholder || "";
     }
 
+    // Load full image
     const fullImage = new Image();
     fullImage.src = thumb ? imageData.thumbnail : imageData.original;
 
@@ -60,8 +50,13 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
       if (imageRef.current) {
         imageRef.current.src = fullImage.src;
         imageRef.current.alt = alt;
-        setIsLoaded(true);
+        setIsLoading(false);
       }
+    };
+
+    fullImage.onerror = () => {
+      setError("Failed to load image");
+      setIsLoading(false);
     };
   }, [src, imageMap, thumb, alt]);
 
@@ -94,14 +89,25 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   return (
     <div ref={containerRef}>
       {(isIntersecting || !lazy) && (
-        <img
-          ref={imageRef}
-          alt={alt}
-          className={`${className}${
-            !isLoaded ? ` ${placeholderClassName}` : ""
-          }`}
-        />
+        <>
+          <img
+            ref={imageRef}
+            alt={alt}
+            className={`${className} ${isLoading ? placeholderClassName : ""}`}
+          />
+          {isLoading && <div>Loading...</div>}
+          {error && <div>Error: {error}</div>}
+        </>
       )}
     </div>
   );
+};
+
+ProgressiveImage.propTypes = {
+  src: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  placeholderClassName: PropTypes.string,
+  alt: PropTypes.string,
+  thumb: PropTypes.bool,
+  lazy: PropTypes.bool,
 };
