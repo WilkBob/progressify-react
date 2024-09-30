@@ -4,6 +4,7 @@
   "description": "A React library for progressive images using Sizeable",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
+  "homepage": "https://web-size.web.app/progressify-react",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
