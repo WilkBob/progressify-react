@@ -66,12 +66,15 @@ export const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   }, [src, imageMap, thumb, alt]);
 
   useEffect(() => {
-    setIsLoaded(false);
-    setIsIntersecting(!lazy);
     if (!lazy || isIntersecting) {
       loadImage();
     }
-  }, [src, lazy, isIntersecting, loadImage]);
+  }, [lazy, isIntersecting, loadImage]);
+
+  useEffect(() => {
+    isLoaded && setIsLoaded(false);
+    loadImage();
+  }, [src, loadImage]);
 
   useEffect(() => {
     if (lazy && containerRef.current) {
